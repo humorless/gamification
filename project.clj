@@ -8,7 +8,8 @@
                  [reagent "0.10.0"]
                  [re-frame "0.12.0"]
                  [day8.re-frame/tracing "0.5.5"]
-                 [clj-commons/secretary "1.2.4"]]
+                 [bidi "2.1.6"]
+                 [kibu/pushy "0.3.8"]]
 
   :plugins [[lein-shadow "0.2.0"]
             [lein-shell "0.5.0"]]
