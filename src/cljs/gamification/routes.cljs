@@ -6,7 +6,8 @@
    [gamification.events :as events]))
 
 (def routes ["/" {""      :home
-                  "about" :about}])
+                  "about" :about
+                  "login" :login}])
 
 (defn- parse-url [url]
   (bidi/match-route routes url))
