@@ -1,7 +1,9 @@
 (ns gamification.views
   (:require
+   [reagent.core :as reagent]
    [re-frame.core :as re-frame]
    [gamification.subs :as subs]
+   [gamification.events :as events]
    [gamification.routes :as routes]))
 
 
@@ -32,27 +34,36 @@
 
 
 (defn login-panel []
-  [:main.pa4.black-80
-   [:form.measure.center
-    [:fieldset#sign_up.ba.b--transparent.ph0.mh0
-     [:legend.f4.fw6.ph0.mh0 "Sign In"]
-     [:div.mt3
-      [:label.db.fw6.lh-copy.f6 {:for "email-address"} "Email"]
-      [:input#email-address.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
-       {:name "email-address", :type "email"}]]
-     [:div.mv3
-      [:label.db.fw6.lh-copy.f6 {:for "password"} "Password"]
-      [:input#password.b.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
-       {:name "password", :type "password"}]]
-     [:label.pa0.ma0.lh-copy.f6.pointer
-      [:input {:type "checkbox"}]
-      " Remember me"]]
-    [:div
-     [:input.b.ph3.pv2.input-reset.ba.b--black.bg-transparent.grow.pointer.f6.dib
-      {:value "Sign in", :type "submit"}]]
-    [:div.lh-copy.mt3
-     [:a.f6.link.dim.black.db {:href "#0"} "Sign up"]
-     [:a.f6.link.dim.black.db {:href "#0"} "Forgot your password?"]]]])
+  (let [default {:email "" :password ""}
+        credential (reagent/atom default)]
+    (fn []
+      (let [{:keys [email password]} @credential
+            login-user (fn [e credential]
+                         (.preventDefault e)
+                         (re-frame/dispatch [::events/login credential]))]
+        [:main.pa4.black-80
+         [:form.measure.center {:on-submit #(login-user % @credential)}
+          [:fieldset#sign_up.ba.b--transparent.ph0.mh0
+           [:legend.f4.fw6.ph0.mh0 "Sign In"]
+           [:div.mt3
+            [:label.db.fw6.lh-copy.f6 {:for "email-address"} "Email"]
+            [:input#email-address.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
+             {:name "email-address", :type "email"
+              :value email :on-change #(swap! credential assoc :email (-> % .-target .-value))}]]
+           [:div.mv3
+            [:label.db.fw6.lh-copy.f6 {:for "password"} "Password"]
+            [:input#password.b.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
+             {:name "password", :type "password"
+              :value password :on-change #(swap! credential assoc :password (-> % .-target .-value))}]]
+           [:label.pa0.ma0.lh-copy.f6.pointer
+            [:input {:type "checkbox"}]
+            " Remember me"]]
+          [:div
+           [:input.b.ph3.pv2.input-reset.ba.b--black.bg-transparent.grow.pointer.f6.dib
+            {:value "Sign in", :type "submit"}]]
+          [:div.lh-copy.mt3
+           [:a.f6.link.dim.black.db {:href "#0"} "Sign up"]
+           [:a.f6.link.dim.black.db {:href "#0"} "Forgot your password?"]]]]))))
 
 ;; ---------------------
 

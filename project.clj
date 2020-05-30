@@ -7,6 +7,8 @@
                  [thheller/shadow-cljs "2.9.3"]
                  [reagent "0.10.0"]
                  [re-frame "0.12.0"]
+                 [cljs-ajax "0.7.5"]
+                 [day8.re-frame/http-fx "v0.2.0"]
                  [day8.re-frame/tracing "0.5.5"]
                  [bidi "2.1.6"]
                  [kibu/pushy "0.3.8"]]
