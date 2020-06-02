@@ -24,6 +24,27 @@
  (fn-traced [db [_ active-panel]]
             (assoc db :active-panel active-panel)))
 
+;; --- Post Registration
+;;
+(re-frame/reg-event-fx
+ ::register
+ (fn-traced [cofx [_ {:keys [email password]}]]
+            {:db (assoc-in (:db cofx) [:loading :register] true)
+             :http-xhrio {:method :post
+                          :uri (endpoint "users" "register")
+                          :params {:email email :password password}
+                          :format (ajax/json-request-format)
+                          :response-format (ajax/json-response-format {:keyword? true})
+                          :on-success [::register-success]
+                          :on-failure [::api-request-error :register]}}))
+
+(re-frame/reg-event-fx
+ ::register-success
+ (fn-traced [{db :db} [_ resp]]
+            {:db         (assoc db :objectId (get resp "objectId"))
+             :dispatch-n [[::complete-request :register]
+                          [::set-active-panel :home-panel]]}))
+
 (re-frame/reg-event-fx
  ::login
  (fn-traced [cofx [_ {:keys [email password]}]]
@@ -34,4 +55,24 @@
                           :format (ajax/json-request-format)
                           :response-format (ajax/json-response-format {:keyword? true})
                           :on-success [::login-success]
-                          :on-failure [::api-request-error ::login]}}))
+                          :on-failure [::api-request-error :login]}}))
+
+(re-frame/reg-event-fx
+ ::login-success
+ (fn-traced [{db :db} [_  resp]]
+            {:db         (assoc db :objectId (get resp "objectId")
+                                :user-token (get resp "user-token"))
+             :dispatch-n [[::complete-request :login]
+                          [::set-active-panel :home-panel]]}))
+
+(re-frame/reg-event-db
+ ::api-request-error                                        ;; triggered when we get request-error from the server
+ (fn-traced [db [_ request-type response]]                        ;; destructure to obtain request-type and response
+            (-> db                                                ;; when we complete a request we need to clean so that our ui is nice and tidy
+                (assoc-in [:errors request-type] (get-in response [:response]))
+                (assoc-in [:loading request-type] false))))
+
+(re-frame/reg-event-fx
+ ::complete-request
+ (fn-traced [cofx [_ _]]
+            {}))

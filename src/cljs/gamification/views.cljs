@@ -30,6 +30,38 @@
      "go to Home Page"]]])
 
 
+;; sign up
+
+
+(defn register-panel []
+  (let [default {:email "" :password ""}
+        credential (reagent/atom default)]
+    (fn []
+      (let [{:keys [email password]} @credential
+            register-user (fn [e credential]
+                            (.preventDefault e)
+                            (re-frame/dispatch [::events/register credential]))]
+        [:main.pa4.black-80
+         [:form.measure.center {:on-submit #(register-user % @credential)}
+          [:fieldset#sign_up.ba.b--transparent.ph0.mh0
+           [:legend.f4.fw6.ph0.mh0 "Sign In"]
+           [:div.mt3
+            [:label.db.fw6.lh-copy.f6 {:for "email-address"} "Email"]
+            [:input#email-address.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
+             {:name "email-address", :type "email"
+              :value email :on-change #(swap! credential assoc :email (-> % .-target .-value))}]]
+           [:div.mv3
+            [:label.db.fw6.lh-copy.f6 {:for "password"} "Password"]
+            [:input#password.b.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
+             {:name "password", :type "password"
+              :value password :on-change #(swap! credential assoc :password (-> % .-target .-value))}]]]
+          [:div
+           [:input.b.ph3.pv2.input-reset.ba.b--black.bg-transparent.grow.pointer.f6.dib
+            {:value "Sign up", :type "submit"}]]
+          [:div.lh-copy.mt3
+           [:a.f6.link.dim.black.db {:href (routes/url-for :login)} "Login in"]
+           [:a.f6.link.dim.black.db {:href "#0"} "Forgot your password?"]]]]))))
+
 ;; login
 
 
@@ -54,15 +86,12 @@
             [:label.db.fw6.lh-copy.f6 {:for "password"} "Password"]
             [:input#password.b.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
              {:name "password", :type "password"
-              :value password :on-change #(swap! credential assoc :password (-> % .-target .-value))}]]
-           [:label.pa0.ma0.lh-copy.f6.pointer
-            [:input {:type "checkbox"}]
-            " Remember me"]]
+              :value password :on-change #(swap! credential assoc :password (-> % .-target .-value))}]]]
           [:div
            [:input.b.ph3.pv2.input-reset.ba.b--black.bg-transparent.grow.pointer.f6.dib
             {:value "Sign in", :type "submit"}]]
           [:div.lh-copy.mt3
-           [:a.f6.link.dim.black.db {:href "#0"} "Sign up"]
+           [:a.f6.link.dim.black.db {:href (routes/url-for :register)} "Sign up"]
            [:a.f6.link.dim.black.db {:href "#0"} "Forgot your password?"]]]]))))
 
 ;; ---------------------
@@ -72,6 +101,7 @@
 (defmethod panels :home-panel [] [home-panel])
 (defmethod panels :about-panel [] [about-panel])
 (defmethod panels :login-panel [] [login-panel])
+(defmethod panels :register-panel [] [register-panel])
 (defmethod panels :default [] [:div])
 
 (defn main-panel []
