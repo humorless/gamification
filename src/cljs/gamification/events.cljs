@@ -3,6 +3,8 @@
    [re-frame.core :as re-frame]
    [gamification.db :as db]
    [gamification.config :as config]
+   [gamification.routes :as routes]
+   [pushy.core :as pushy]
    [clojure.string :as string]
    [ajax.core :as ajax]
    [day8.re-frame.http-fx]
@@ -24,8 +26,16 @@
  (fn-traced [db [_ active-panel]]
             (assoc db :active-panel active-panel)))
 
+(re-frame/reg-fx
+ :set-url
+ (fn [url-key]
+   (routes/set-token! url-key)))
+
+
 ;; --- Post Registration
 ;;
+
+
 (re-frame/reg-event-fx
  ::register
  (fn-traced [cofx [_ {:keys [email password]}]]
@@ -42,6 +52,7 @@
  ::register-success
  (fn-traced [{db :db} [_ resp]]
             {:db         (assoc db :objectId (get resp "objectId"))
+             :set-url    :home
              :dispatch-n [[::complete-request :register]
                           [::set-active-panel :home-panel]]}))
 
@@ -62,6 +73,7 @@
  (fn-traced [{db :db} [_  resp]]
             {:db         (assoc db :objectId (get resp "objectId")
                                 :user-token (get resp "user-token"))
+             :set-url    :home
              :dispatch-n [[::complete-request :login]
                           [::set-active-panel :home-panel]]}))
 
