@@ -51,7 +51,8 @@
 (re-frame/reg-event-fx
  ::register-success
  (fn-traced [{db :db} [_ resp]]
-            {:db         (assoc db :objectId (get resp "objectId"))
+            {:db         (-> db
+                             (assoc-in [:loading :register] false))
              :set-url    :home
              :dispatch-n [[::complete-request :register]
                           [::set-active-panel :home-panel]]}))
@@ -71,8 +72,10 @@
 (re-frame/reg-event-fx
  ::login-success
  (fn-traced [{db :db} [_  resp]]
-            {:db         (assoc db :objectId (get resp "objectId")
-                                :user-token (get resp "user-token"))
+            {:db         (-> db
+                             (assoc-in [:loading :login] false)
+                             (assoc-in [:user :objectId] (get resp "objectId"))
+                             (assoc-in [:user :user-token] (get resp "user-token")))
              :set-url    :home
              :dispatch-n [[::complete-request :login]
                           [::set-active-panel :home-panel]]}))
