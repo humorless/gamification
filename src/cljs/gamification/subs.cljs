@@ -11,3 +11,13 @@
  ::active-panel
  (fn [db _]
    (:active-panel db)))
+
+(re-frame/reg-sub
+ ::loading
+ (fn [db _]
+   (:loading db)))
+
+(re-frame/reg-sub
+ ::errors
+ (fn [db _]
+   (:errors db)))

@@ -38,26 +38,31 @@
         credential (reagent/atom default)]
     (fn []
       (let [{:keys [email password]} @credential
+            loading @(re-frame/subscribe [::subs/loading])
+            errors @(re-frame/subscribe [::subs/errors])
             register-user (fn [e credential]
                             (.preventDefault e)
                             (re-frame/dispatch [::events/register credential]))]
         [:main.pa4.black-80
          [:form.measure.center {:on-submit #(register-user % @credential)}
           [:fieldset#sign_up.ba.b--transparent.ph0.mh0
-           [:legend.f4.fw6.ph0.mh0 "Sign In"]
+           [:legend.f4.fw6.ph0.mh0 "Sign Up"]
+           (when (:register errors)
+             [:div (get (:register errors) "message")])
            [:div.mt3
             [:label.db.fw6.lh-copy.f6 {:for "email-address"} "Email"]
             [:input#email-address.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
-             {:name "email-address", :type "email"
+             {:name "email-address" :type "email"
               :value email :on-change #(swap! credential assoc :email (-> % .-target .-value))}]]
            [:div.mv3
             [:label.db.fw6.lh-copy.f6 {:for "password"} "Password"]
             [:input#password.b.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
-             {:name "password", :type "password"
+             {:name "password" :type "password"
               :value password :on-change #(swap! credential assoc :password (-> % .-target .-value))}]]]
           [:div
            [:input.b.ph3.pv2.input-reset.ba.b--black.bg-transparent.grow.pointer.f6.dib
-            {:value "Sign up", :type "submit"}]]
+            {:value "Sign up" :type "submit"
+             :disabled (when (:register loading) true)}]]
           [:div.lh-copy.mt3
            [:a.f6.link.dim.black.db {:href (routes/url-for :login)} "Login in"]
            [:a.f6.link.dim.black.db {:href "#0"} "Forgot your password?"]]]]))))
@@ -70,6 +75,8 @@
         credential (reagent/atom default)]
     (fn []
       (let [{:keys [email password]} @credential
+            loading @(re-frame/subscribe [::subs/loading])
+            errors @(re-frame/subscribe [::subs/errors])
             login-user (fn [e credential]
                          (.preventDefault e)
                          (re-frame/dispatch [::events/login credential]))]
@@ -77,19 +84,24 @@
          [:form.measure.center {:on-submit #(login-user % @credential)}
           [:fieldset#sign_up.ba.b--transparent.ph0.mh0
            [:legend.f4.fw6.ph0.mh0 "Sign In"]
+           (when (:login errors)
+             [:div (get (:login errors) "message")])
            [:div.mt3
             [:label.db.fw6.lh-copy.f6 {:for "email-address"} "Email"]
             [:input#email-address.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
-             {:name "email-address", :type "email"
-              :value email :on-change #(swap! credential assoc :email (-> % .-target .-value))}]]
+             {:name "email-address" :type "email"
+              :value email :on-change #(swap! credential assoc :email (-> % .-target .-value))
+              :disabled (when (:login loading) true)}]]
            [:div.mv3
             [:label.db.fw6.lh-copy.f6 {:for "password"} "Password"]
             [:input#password.b.pa2.input-reset.ba.bg-transparent.hover-bg-black.hover-white.w-100
-             {:name "password", :type "password"
-              :value password :on-change #(swap! credential assoc :password (-> % .-target .-value))}]]]
+             {:name "password" :type "password"
+              :value password :on-change #(swap! credential assoc :password (-> % .-target .-value))
+              :disabled (when (:login loading) true)}]]]
           [:div
            [:input.b.ph3.pv2.input-reset.ba.b--black.bg-transparent.grow.pointer.f6.dib
-            {:value "Sign in", :type "submit"}]]
+            {:value "Sign in", :type "submit"
+             :disabled  (when (:login loading) true)}]]
           [:div.lh-copy.mt3
            [:a.f6.link.dim.black.db {:href (routes/url-for :register)} "Sign up"]
            [:a.f6.link.dim.black.db {:href "#0"} "Forgot your password?"]]]]))))
@@ -106,6 +118,5 @@
 
 (defn main-panel []
   (let [active-panel (re-frame/subscribe [::subs/active-panel])]
-    (fn []
-      (panels @active-panel))))
+    (panels @active-panel)))
 
