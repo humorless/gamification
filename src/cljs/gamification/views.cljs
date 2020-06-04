@@ -72,10 +72,10 @@
 
 (defn login-panel []
   (let [default {:email "" :password ""}
-        credential (reagent/atom default)]
+        credential (reagent/atom default)] ;; ratom should not be included in render f
     (fn []
-      (let [{:keys [email password]} @credential
-            loading @(re-frame/subscribe [::subs/loading])
+      (let [{:keys [email password]} @credential            ;; @ indicates ratom change
+            loading @(re-frame/subscribe [::subs/loading])  ;; @ needs to be included in render f
             errors @(re-frame/subscribe [::subs/errors])
             login-user (fn [e credential]
                          (.preventDefault e)
