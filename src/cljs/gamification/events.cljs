@@ -21,10 +21,16 @@
  (fn-traced [_ _]
             db/default-db))
 
-(re-frame/reg-event-db
+;; Need to define handler for ::get-learning-events
+(re-frame/reg-event-fx
  ::set-active-panel
- (fn-traced [db [_ active-panel]]
-            (assoc db :active-panel active-panel)))
+ (fn-traced [{db :db} [_ active-panel]]
+            (let [new-db (assoc db :active-panel active-panel)]
+              (case active-panel
+                :home-panel {:db new-db
+                             :dispatch-n [(when (:user db)
+                                            [::get-learning-events])]}
+                (:login-panel :about-panel :register-panel) {:db new-db}))))
 
 (re-frame/reg-fx
  :set-url
